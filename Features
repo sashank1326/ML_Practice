@@ -1,0 +1,532 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "b3bf7a9d",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:33.919418Z",
+     "iopub.status.busy": "2025-08-07T15:38:33.918596Z",
+     "iopub.status.idle": "2025-08-07T15:38:35.798806Z",
+     "shell.execute_reply": "2025-08-07T15:38:35.797703Z"
+    },
+    "papermill": {
+     "duration": 1.886455,
+     "end_time": "2025-08-07T15:38:35.800488",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:33.914033",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "/kaggle/input/cars-datasets-2025/Cars Datasets 2025.csv\n",
+      "/kaggle/input/electric-vehicle-specifications-dataset-2025/electric_vehicles_spec_2025.csv.csv\n",
+      "/kaggle/input/odi-cricket-data/ODI Cricket Data new.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "# This Python 3 environment comes with many helpful analytics libraries installed\n",
+    "# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n",
+    "# For example, here's several helpful packages to load\n",
+    "\n",
+    "import numpy as np # linear algebra\n",
+    "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+    "\n",
+    "# Input data files are available in the read-only \"../input/\" directory\n",
+    "# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n",
+    "\n",
+    "import os\n",
+    "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "    for filename in filenames:\n",
+    "        print(os.path.join(dirname, filename))\n",
+    "\n",
+    "# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n",
+    "# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "fb724dd6",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:35.807903Z",
+     "iopub.status.busy": "2025-08-07T15:38:35.807433Z",
+     "iopub.status.idle": "2025-08-07T15:38:37.601852Z",
+     "shell.execute_reply": "2025-08-07T15:38:37.600983Z"
+    },
+    "papermill": {
+     "duration": 1.799661,
+     "end_time": "2025-08-07T15:38:37.603431",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:35.803770",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(478, 22)\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import sklearn\n",
+    "from sklearn import datasets\n",
+    "# iris = datasets.load_iris()\n",
+    "electric_info = pd.read_csv(\"/kaggle/input/electric-vehicle-specifications-dataset-2025/electric_vehicles_spec_2025.csv.csv\")\n",
+    "vehicaldf = pd.DataFrame(electric_info)\n",
+    "print(vehicaldf.shape)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "73cc3064",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:37.610543Z",
+     "iopub.status.busy": "2025-08-07T15:38:37.610216Z",
+     "iopub.status.idle": "2025-08-07T15:38:37.627363Z",
+     "shell.execute_reply": "2025-08-07T15:38:37.626317Z"
+    },
+    "papermill": {
+     "duration": 0.022602,
+     "end_time": "2025-08-07T15:38:37.628943",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:37.606341",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Constant features: []\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "\n",
+    "# Load your dataset\n",
+    "df = pd.read_csv(\"/kaggle/input/electric-vehicle-specifications-dataset-2025/electric_vehicles_spec_2025.csv.csv\")\n",
+    "\n",
+    "\n",
+    "x_train = df.select_dtypes(include=['number'])\n",
+    "\n",
+    "# Now detect constant features\n",
+    "const_feature = [\n",
+    "    feature for feature in x_train.columns\n",
+    "    if x_train[feature].std() == 0\n",
+    "]\n",
+    "\n",
+    "print(\"Constant features:\", const_feature)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "42a4b7b1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:37.636005Z",
+     "iopub.status.busy": "2025-08-07T15:38:37.635654Z",
+     "iopub.status.idle": "2025-08-07T15:38:37.658681Z",
+     "shell.execute_reply": "2025-08-07T15:38:37.657545Z"
+    },
+    "papermill": {
+     "duration": 0.028313,
+     "end_time": "2025-08-07T15:38:37.660239",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:37.631926",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Quasi-constant features: ['battery_type', 'fast_charge_port']\n"
+     ]
+    }
+   ],
+   "source": [
+    "quasi_constant_features = []\n",
+    "\n",
+    "for feature in df.columns:\n",
+    "    top_freq = df[feature].value_counts(normalize=True).values[0]\n",
+    "    if top_freq > 0.99:\n",
+    "        quasi_constant_features.append(feature)\n",
+    "\n",
+    "print(\"Quasi-constant features:\", quasi_constant_features)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "331363e9",
+   "metadata": {
+    "papermill": {
+     "duration": 0.002583,
+     "end_time": "2025-08-07T15:38:37.665748",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:37.663165",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# **Raw Data** "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "f6af8e29",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:37.672349Z",
+     "iopub.status.busy": "2025-08-07T15:38:37.672060Z",
+     "iopub.status.idle": "2025-08-07T15:38:37.684378Z",
+     "shell.execute_reply": "2025-08-07T15:38:37.683294Z"
+    },
+    "papermill": {
+     "duration": 0.01736,
+     "end_time": "2025-08-07T15:38:37.685813",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:37.668453",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   A   B  C  D\n",
+      "0  0   0  0  5\n",
+      "1  1   2  1  5\n",
+      "2  2   4  2  5\n",
+      "3  3   6  3  5\n",
+      "4  4   8  4  5\n",
+      "5  5  10  5  5\n",
+      "6  6  12  6  5\n",
+      "7  7  14  7  5\n",
+      "8  8  16  8  5\n",
+      "9  9  18  9  5\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "\n",
+    "# Create DataFrame with 10 rows\n",
+    "data = {\n",
+    "    'A': np.arange(10),             \n",
+    "    'B': np.arange(10) * 2,           \n",
+    "    'C': np.arange(10),                         \n",
+    "    'D': 5    }          \n",
+    "\n",
+    "df = pd.DataFrame(data)\n",
+    "\n",
+    "print(df)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "e57fa67e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:37.692883Z",
+     "iopub.status.busy": "2025-08-07T15:38:37.692531Z",
+     "iopub.status.idle": "2025-08-07T15:38:37.698326Z",
+     "shell.execute_reply": "2025-08-07T15:38:37.697363Z"
+    },
+    "papermill": {
+     "duration": 0.010894,
+     "end_time": "2025-08-07T15:38:37.699657",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:37.688763",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Constant features: ['D']\n"
+     ]
+    }
+   ],
+   "source": [
+    "constant_features = [col for col in df.columns if df[col].std() == 0]\n",
+    "\n",
+    "print(\"Constant features:\", constant_features)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "d2643785",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:37.706730Z",
+     "iopub.status.busy": "2025-08-07T15:38:37.706427Z",
+     "iopub.status.idle": "2025-08-07T15:38:37.713079Z",
+     "shell.execute_reply": "2025-08-07T15:38:37.712120Z"
+    },
+    "papermill": {
+     "duration": 0.011765,
+     "end_time": "2025-08-07T15:38:37.714410",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:37.702645",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Duplicate features: ['C']\n"
+     ]
+    }
+   ],
+   "source": [
+    "duplicates = []\n",
+    "cols = df.columns\n",
+    "\n",
+    "for i in range(len(cols)):\n",
+    "    for j in range(i + 1, len(cols)):\n",
+    "        if df[cols[i]].equals(df[cols[j]]):\n",
+    "            duplicates.append(cols[j])\n",
+    "\n",
+    "print(\"Duplicate features:\", duplicates)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "a4992dd2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:37.721735Z",
+     "iopub.status.busy": "2025-08-07T15:38:37.721414Z",
+     "iopub.status.idle": "2025-08-07T15:38:37.731296Z",
+     "shell.execute_reply": "2025-08-07T15:38:37.730249Z"
+    },
+    "papermill": {
+     "duration": 0.015355,
+     "end_time": "2025-08-07T15:38:37.732825",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:37.717470",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Highly correlated features (threshold=0.9):\n",
+      "['B', 'C']\n"
+     ]
+    }
+   ],
+   "source": [
+    "corr_matrix = df.corr().abs()\n",
+    "\n",
+    "# Set correlation threshold\n",
+    "threshold = 0.9\n",
+    "\n",
+    "# Store highly correlated features\n",
+    "high_corr_features = set()\n",
+    "\n",
+    "# Loop through correlation matrix (lower triangle only)\n",
+    "for i in range(len(corr_matrix.columns)):\n",
+    "    for j in range(i):\n",
+    "        if corr_matrix.iloc[i, j] > threshold:\n",
+    "            feature = corr_matrix.columns[i]\n",
+    "            high_corr_features.add(feature)\n",
+    "\n",
+    "# Output\n",
+    "print(\"Highly correlated features (threshold={}):\".format(threshold))\n",
+    "print(list(high_corr_features))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "ad3f7de5",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:37.740458Z",
+     "iopub.status.busy": "2025-08-07T15:38:37.739834Z",
+     "iopub.status.idle": "2025-08-07T15:38:37.748374Z",
+     "shell.execute_reply": "2025-08-07T15:38:37.747356Z"
+    },
+    "papermill": {
+     "duration": 0.013798,
+     "end_time": "2025-08-07T15:38:37.749774",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:37.735976",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Quasi-constant features: ['D']\n"
+     ]
+    }
+   ],
+   "source": [
+    "#Quasi\n",
+    "\n",
+    "# Threshold: If 95% or more values are the same, we consider it quasi-constant\n",
+    "quasi_constant_features = []\n",
+    "for col in df.columns:\n",
+    "    dominant_freq = df[col].value_counts(normalize=True).max()\n",
+    "    if dominant_freq >= 0.95:\n",
+    "        quasi_constant_features.append(col)\n",
+    "\n",
+    "print(\"Quasi-constant features:\", quasi_constant_features)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "6371b29d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-07T15:38:37.757590Z",
+     "iopub.status.busy": "2025-08-07T15:38:37.756915Z",
+     "iopub.status.idle": "2025-08-07T15:38:38.254578Z",
+     "shell.execute_reply": "2025-08-07T15:38:38.253683Z"
+    },
+    "papermill": {
+     "duration": 0.503271,
+     "end_time": "2025-08-07T15:38:38.256224",
+     "exception": false,
+     "start_time": "2025-08-07T15:38:37.752953",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "  Feature  MI Score\n",
+      "0       A         0\n",
+      "1       B         0\n",
+      "2       C         0\n"
+     ]
+    }
+   ],
+   "source": [
+    "#MI\n",
+    "\n",
+    "from sklearn.feature_selection import mutual_info_classif\n",
+    "y = np.array([0, 0, 1, 1, 0, 1, 0, 1, 0, 1])  # Binary target\n",
+    "\n",
+    "# Drop constant features\n",
+    "constant_features = [col for col in df.columns if df[col].std() == 0]\n",
+    "df_filtered = df.drop(columns=constant_features)\n",
+    "\n",
+    "# Calculate mutual information\n",
+    "mi_scores = mutual_info_classif(df_filtered, y, discrete_features=False)\n",
+    "\n",
+    "# Display results\n",
+    "mi_df = pd.DataFrame({'Feature': df_filtered.columns, 'MI Score': mi_scores})\n",
+    "print(mi_df.sort_values(by='MI Score', ascending=False))"
+   ]
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "datasetId": 6728238,
+     "sourceId": 10834643,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 7702238,
+     "sourceId": 12225161,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 7890578,
+     "sourceId": 12502275,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "dockerImageVersionId": 31089,
+   "isGpuEnabled": false,
+   "isInternetEnabled": false,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.13"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 9.905522,
+   "end_time": "2025-08-07T15:38:38.980344",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2025-08-07T15:38:29.074822",
+   "version": "2.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
